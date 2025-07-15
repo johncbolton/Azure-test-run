@@ -16,7 +16,6 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-# Used to create random names for globally unique resources
 resource "random_id" "id" {
   byte_length = 8
 }
@@ -26,6 +25,7 @@ module "network" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   vnet_name           = "main-vnet"
+  depends_on          = [azurerm_resource_group.rg]
 }
 
 module "linux_vm" {
@@ -37,6 +37,7 @@ module "linux_vm" {
   subnet_id             = module.network.vm_subnet_id
   admin_username        = var.admin_username
   admin_password        = var.admin_password
+  depends_on            =[azurerm_resource_group.rg]
 }
 
 module "storage" {
@@ -45,6 +46,7 @@ module "storage" {
   resource_group_name  = azurerm_resource_group.rg.name
   location             = azurerm_resource_group.rg.location
   container_name       = "container1"
+  depends_on           = [azurerm_resource_group.rg]
 }
 
 module "sql" {
@@ -56,4 +58,5 @@ module "sql" {
   admin_username               = var.admin_username
   admin_password               = var.admin_password
   subnet_id                    = module.network.sql_subnet_id
+  depends_on                   = [azurerm_resource_group.rg]
 }
